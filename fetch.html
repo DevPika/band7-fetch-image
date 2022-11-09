@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <img id="image">
+    <script>
+        async function something() {
+            // let response = await fetch({
+            //     // url: 'https://catfact.ninja/fact',
+            //     url: 'localost:8000/fetch.html',
+            //     method: 'GET',
+            //     mode: 'no-cors'
+            // })
+            // let response = await fetch("https://catfact.ninja/fact");
+            // let response = await fetch({"https://via.placeholder.com/194x368.png"});
+            // let response = await fetch('https://via.placeholder.com/194x368.png', {
+            //     method: 'GET',
+            //     mode: 'no-cors'
+            // })
+            // console.log(response);
+            // if (response.ok) { // if HTTP-status is 200-299
+            // // get the response body (the method explained below)
+            // let json = await response.json();
+            // console.log(json.fact);
+            // } else {
+            // alert("HTTP-Error: " + response.status);
+            // console.log(response);
+            // }
+            let image = document.querySelector("#image");
+            console.log(image);
+            try {
+                // console.log(response);
+                // let response = await fetch("https://catfact.ninja/fact");
+
+                // Fetch the original image
+                // fetch('https://devpika.github.io/assets/images/jigree.png')
+                fetch('https://via.placeholder.com/194x368.png', {
+                    method: 'GET',
+                    mode: 'no-cors'
+                })
+                // Retrieve its body as ReadableStream
+                .then((response) => {
+                    const reader = response.body.getReader();
+                    return new ReadableStream({
+                    start(controller) {
+                        return pump();
+                        function pump() {
+                        return reader.read().then(({ done, value }) => {
+                            // When no more data needs to be consumed, close the stream
+                            if (done) {
+                            controller.close();
+                            return;
+                            }
+                            // Enqueue the next data chunk into our target stream
+                            controller.enqueue(value);
+                            return pump();
+                        });
+                        }
+                    }
+                    })
+                })
+                // .then((stream) => {console.log(stream); return stream;})
+                // Create a new response out of the stream
+                .then((stream) => new Response(stream))
+                // Create an object URL for the response
+                .then((response) => response.blob())
+                // .then((blob) => {URL.createObjectURL(blob); console.log(blob.arrayBuffer());})
+                .then((blob) => blob.arrayBuffer())
+                .then((array) => console.log(new Uint8Array(array).length))
+                // Update image
+                // .then((url) => console.log(image.src = url))
+                .catch((err) => console.error(err));
+            } catch (error) {
+                console.log(error);
+            }
+        }
+        something();        
+    </script>
+</body>
+</html>
